@@ -1,6 +1,6 @@
 function request() {
 	const xhr = new XMLHttpRequest();
-
+	// https://api.allorigins.win/get?url=
 	xhr.open(
 		'GET',
 		'https://jsonplaceholder.typicode.com/todos',
@@ -32,14 +32,15 @@ function request() {
 			users.push(data.filter(el => el.userId === 2).slice(0, 5));
 			users.push(data.filter(el => el.userId === 4).slice(0, 5));
 			users.push(data.filter(el => el.userId === 6).slice(0, 5));
+			console.log(users)
 
 			function createElem(idElem) {
 				return document.createElement(idElem);
 			};
 
-
 			function createContent() {
 				const body = document.querySelector('body');
+
 				let container = createElem('div');
 				body.appendChild(container).className = 'container';
 
@@ -66,42 +67,86 @@ function request() {
 					addToDoBlock.appendChild(addTextBtn).className = 'add-todo-btn';
 					addTextBtn.innerText = 'Add';
 
-					userBtn.onclick = () => {
-						if (addToDoBlock.style.display === 'none') {
-							addToDoBlock.style.display = 'flex'
-						} else {
-							addToDoBlock.style.display = 'none'
-						};
+					userBtn.onclick = () => {(addToDoBlock.style.display === 'none')
+							? addToDoBlock.style.display = 'flex'
+							: addToDoBlock.style.display = 'none'
 					};
 
-					let list = createElem('ul');
+					let list = createElem('ol');
 					userContainer.appendChild(list);
 
-					let count = 0;
+					function createToDo() {
+						for(let k = 0; k < users[i].length; k++) {
+							let li = createElem('li');
+							list.appendChild(li);
 
-					for(let k = 0; k < users[i].length; k++) {
-						let li = createElem('li');
-						list.appendChild(li);
+							let inp = createElem('input');
+							inp.disabled = true;
+							li.appendChild(inp).value = `${users[i][k].title}`;
 
-						let inp = createElem('input');
-						inp.disabled = true;
-						li.appendChild(inp).value = `${++count}. ${users[i][k].title}`;
+							let removeBtn = createElem('button');
+							removeBtn.className = 'remove-btn';
+							li.appendChild(removeBtn).textContent = 'Remove';
 
-						let removeBtn = createElem('button');
-						removeBtn.className = 'remove-btn';
-						li.appendChild(removeBtn).textContent = 'Remove';
+							let editBtn = createElem('button');
+							editBtn.className = 'edit-btn';
+							li.appendChild(editBtn).textContent = 'Edit';
 
-						let editBtn = createElem('button');
-						editBtn.className = 'edit-btn';
-						li.appendChild(editBtn).textContent = 'Edit';
-						editBtn.onclick = () => {
-							if (inp.disabled === true) {
-								inp.disabled = false;
-							} else {
-								inp.disabled = true;
+							editBtn.onclick = () => {
+								if (inp.disabled === true) {
+									inp.disabled = false;
+									inp.focus();
+								} else {
+									inp.disabled = true;
+									fetch(`https://jsonplaceholder.typicode.com/todos/${users[i][k].id}`, {
+										method: 'PATCH',
+										body: JSON.stringify({title: inp.value}),
+										headers: {'Content-type': 'application/json; charset=UTF-8'},
+									}).then((response) => response.json())
+									.then((data) => console.log(data))
+								};
 							};
-						};
+
+							removeBtn.addEventListener('click', function() {
+
+								// return () => {
+									console.log(i, k)
+									fetch(`https://jsonplaceholder.typicode.com/todos/${users[i][k].id}`, {
+										method: 'DELETE'
+									}) 
+									.then((response) => response.json())
+									.then(() => {
+										console.log(users[i][k])
+										console.log(users[i].splice([users[i][k]], 1))
+										list.innerText = ''
+										createToDo()
+									})
+								// }
+							})
+
+							addTextBtn.onclick = function() {
+								let toDoForSend = {
+									completed: false,
+									id: users[i][users[i].length - 1].id + 1,
+									userId: users[i][i].userId,
+									title: `${textArea.value}`
+								}
+										
+								users[i].unshift(toDoForSend)
+									fetch('https://jsonplaceholder.typicode.com/todos',{
+										method: 'POST',
+										body: JSON.stringify(users[i][0]),
+										headers: {'Content-type': 'application/json; charset=UTF-8'},
+									}).then((response) => response.json())
+										.then(function() {
+											list.innerText = '',
+											addToDoBlock.style.display = 'none',
+											createToDo();
+										})
+									};
+						}
 					};
+					createToDo();
 				};
 			};
 			createContent();

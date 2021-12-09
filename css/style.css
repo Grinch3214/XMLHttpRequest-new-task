@@ -124,9 +124,6 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-ul, ol, li {
-	list-style: none;
-}
 /* stl */
 
 h2 {
@@ -168,11 +165,14 @@ input:disabled {
 }
 
 li {
-	display: flex;
 	margin: 5px 0;
+}
+li input, li button {
+	display: inline-block;
 }
 li input {
 	margin-right: 20px;
+	width: 70%;
 }
 li button {
 	margin-left: 10px;
