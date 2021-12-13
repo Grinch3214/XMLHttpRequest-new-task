@@ -1,6 +1,5 @@
 function request() {
 	const xhr = new XMLHttpRequest();
-	// https://api.allorigins.win/get?url=
 	xhr.open(
 		'GET',
 		'https://jsonplaceholder.typicode.com/todos',
@@ -32,7 +31,6 @@ function request() {
 			users.push(data.filter(el => el.userId === 2).slice(0, 5));
 			users.push(data.filter(el => el.userId === 4).slice(0, 5));
 			users.push(data.filter(el => el.userId === 6).slice(0, 5));
-			console.log(users)
 
 			function createElem(idElem) {
 				return document.createElement(idElem);
@@ -108,20 +106,17 @@ function request() {
 							};
 
 							removeBtn.addEventListener('click', function() {
-
-								// return () => {
+								fetch(`https://jsonplaceholder.typicode.com/todos/${users[i][k].id}`, {
+									method: 'DELETE'
+								}) 
+								.then((response) => response.json())
+								.then(() => {
+									console.log(users[i].indexOf(users[i][k]))
+									users[i].splice((users[i].indexOf(users[i][k])), 1)
 									console.log(i, k)
-									fetch(`https://jsonplaceholder.typicode.com/todos/${users[i][k].id}`, {
-										method: 'DELETE'
-									}) 
-									.then((response) => response.json())
-									.then(() => {
-										console.log(users[i][k])
-										console.log(users[i].splice([users[i][k]], 1))
-										list.innerText = ''
-										createToDo()
-									})
-								// }
+									list.innerText = '';
+									createToDo();
+								})
 							})
 
 							addTextBtn.onclick = function() {
